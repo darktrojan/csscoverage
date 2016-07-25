@@ -1,0 +1,94 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<title></title>
+<style type="text/css">
+:root {
+	background-color: #fff;
+	color: #000;
+	font-family: sans-serif;
+}
+h1 {
+	margin-bottom: 0;
+	font-size: 16px;
+	white-space: nowrap;
+}
+ul {
+	list-style: none;
+	margin-top: 0;
+	padding: 0;
+	white-space: nowrap;
+	font-size: 12px;
+	line-height: 16px;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+
+/* globals Components, Services, XPCOMUtils, getThings */
+Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('chrome://css/content/things.jsm');
+let things = getThings();
+let hrefs = Array.from(things.keys()).sort();
+for (let href of hrefs) {
+	if (href === null) {
+		continue;
+	}
+
+	let data = things.get(href);
+	// if (!data.unused.length) {
+	// 	continue;
+	// }
+
+	let ul = findList(href);
+	for (let selector of data.unused) {
+		let li = document.createElement('li');
+		li.textContent = selector.selectorText;// + ' ' + selector.line;// + ':' + selector.column;
+		ul.appendChild(li);
+	}
+}
+
+function findList(href) {
+	for (let h of document.querySelectorAll('h1')) {
+		if (h.dataset.href == href) {
+			return h.nextElementSibling;
+		}
+	}
+
+	let h1 = document.createElement('h1');
+	h1.dataset.href = href;
+	h1.textContent = href.substring(href.lastIndexOf('/') + 1);
+	let button = document.createElement('button');
+	button.textContent = 'X';
+	button.onclick = function() {
+		getThings().delete(href);
+		h1.remove();
+		ul.remove();
+	};
+	h1.appendChild(button);
+	document.body.appendChild(h1);
+
+	let ul = document.createElement('ul');
+	document.body.appendChild(ul);
+	return ul;
+}
+
+let observer = {
+	QueryInterface: XPCOMUtils.generateQI([
+		Components.interfaces.nsIObserver,
+		Components.interfaces.nsISupportsWeakReference,
+		Components.interfaces.nsISupports
+	]),
+
+	observe: function() {
+		location.reload();
+	}
+};
+
+Services.obs.addObserver(observer, 'thingsAdded', true);
+
+</script>
+</body>
+</html>
