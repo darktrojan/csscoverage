@@ -1,7 +1,10 @@
-/* globals addThings, APP_STARTUP, APP_SHUTDOWN, Components, Services, XPCOMUtils */
+/* globals APP_STARTUP, APP_SHUTDOWN, Components, Services, XPCOMUtils */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+/* globals addThings, CustomizableUI */
 XPCOMUtils.defineLazyModuleGetter(this, 'addThings', 'chrome://css/content/things.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CustomizableUI', 'resource:///modules/CustomizableUI.jsm');
 
 /* exported install, uninstall, startup, shutdown */
 function install() {
@@ -23,6 +26,18 @@ function startup(params, reason) {
 function realStartup() {
 	messageListener.init();
 	windowObserver.init();
+
+	CustomizableUI.createWidget({
+		id: 'css-widget',
+		label: 'things',
+		tooltiptext: 'things',
+		type: 'button',
+		removable: true,
+		defaultArea: CustomizableUI.AREA_NAVBAR,
+		onCommand: function(event) {
+			event.view.SidebarUI.toggle('cssSidebar');
+		}
+	});
 }
 function shutdown(params, reason) {
 	if (reason == APP_SHUTDOWN) {
@@ -30,6 +45,9 @@ function shutdown(params, reason) {
 	}
 	messageListener.destroy();
 	windowObserver.destroy();
+
+	CustomizableUI.destroyWidget('css-widget');
+
 	Components.utils.unload('chrome://css/content/things.jsm');
 }
 
@@ -62,6 +80,7 @@ var messageListener = {
 };
 
 var windowObserver = {
+	ICON_CSS_PIDATA: 'href="chrome://css/content/icon.css" type="text/css"',
 	init: function() {
 		this.enumerate(this.paint);
 		Services.ww.registerNotification(this);
@@ -102,6 +121,9 @@ var windowObserver = {
 			broadcaster.setAttribute('sidebarurl', 'chrome://css/content/things.xhtml');
 			broadcaster.setAttribute('oncommand', 'SidebarUI.toggle(\'cssSidebar\');');
 			doc.getElementById('mainBroadcasterSet').appendChild(broadcaster);
+
+			let pi = doc.createProcessingInstruction('xml-stylesheet', windowObserver.ICON_CSS_PIDATA);
+			doc.insertBefore(pi, doc.getElementById('main-window'));
 		}
 	},
 	unpaint: function(win) {
@@ -110,6 +132,13 @@ var windowObserver = {
 
 			doc.getElementById('menu_cssSidebar').remove();
 			doc.getElementById('cssSidebar').remove();
+
+			for (let node of doc.childNodes) {
+				if (node.nodeType == doc.PROCESSING_INSTRUCTION_NODE && node.data == windowObserver.ICON_CSS_PIDATA) {
+					doc.removeChild(node);
+					break;
+				}
+			}
 		}
 	},
 };

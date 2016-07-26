@@ -1,0 +1,7 @@
+#css-widget {
+	list-style-image: url("chrome://css/content/icon.svg");
+}
+#css-widget[cui-areatype="menu-panel"],
+toolbarpaletteitem[place="palette"] > #css-widget {
+	list-style-image: url("chrome://css/content/icon.svg");
+}
