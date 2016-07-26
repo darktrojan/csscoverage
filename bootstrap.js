@@ -2,9 +2,10 @@
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-/* globals addThings, CustomizableUI */
+/* globals addThings, CustomizableUI, Preferences */
 XPCOMUtils.defineLazyModuleGetter(this, 'addThings', 'chrome://css/content/things.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CustomizableUI', 'resource:///modules/CustomizableUI.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
 
 /* exported install, uninstall, startup, shutdown */
 function install() {
@@ -25,6 +26,7 @@ function startup(params, reason) {
 }
 function realStartup() {
 	messageListener.init();
+	prefObserver.init();
 	windowObserver.init();
 
 	CustomizableUI.createWidget({
@@ -44,6 +46,7 @@ function shutdown(params, reason) {
 		return;
 	}
 	messageListener.destroy();
+	prefObserver.destroy();
 	windowObserver.destroy();
 
 	CustomizableUI.destroyWidget('css-widget');
@@ -74,6 +77,26 @@ var messageListener = {
 		switch (message.name) {
 		case 'CSS:result':
 			addThings(message.data);
+			break;
+		}
+	},
+	broadcast: function(name, data) {
+		Services.mm.broadcastAsyncMessage(name, data);
+	}
+};
+
+var prefObserver = {
+	init: function() {
+		Services.prefs.addObserver('extensions.css.domains', this, false);
+	},
+	destroy: function() {
+		Services.prefs.removeObserver('extensions.css.domains', this);
+	},
+	observe: function(subject, topic, data) {
+		switch (data) {
+		case 'extensions.css.domains':
+			let list = Preferences.get('extensions.css.domains', '').split(/\s+/).filter(d => d);
+			messageListener.broadcast('CSS:listOfDomainsChanged', list);
 			break;
 		}
 	}

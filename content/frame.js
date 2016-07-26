@@ -1,6 +1,11 @@
-/* globals addMessageListener, Components, content, DOMUtils, removeMessageListener, sendAsyncMessage, XPCOMUtils */
+/* globals addEventListener, addMessageListener, content, removeEventListener, removeMessageListener, sendAsyncMessage */
+
+/* globals Components, DOMUtils, Preferences, XPCOMUtils */
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
 XPCOMUtils.defineLazyServiceGetter(this, 'DOMUtils', '@mozilla.org/inspector/dom-utils;1', 'inIDOMUtils');
+
+let listOfDomains = Preferences.get('extensions.css.domains', '').split(/\s+/).filter(d => d);
 
 let listener = {
 	_events: [
@@ -9,7 +14,8 @@ let listener = {
 	],
 	_messages: [
 		'CSS:doItNow',
-		'CSS:disable'
+		'CSS:disable',
+		'CSS:listOfDomainsChanged'
 	],
 	init: function() {
 		for (let e of this._events) {
@@ -30,7 +36,7 @@ let listener = {
 	handleEvent: function(event) {
 		switch (event.type) {
 		case 'DOMContentLoaded':
-			if (content.document.location.host == 'event.lan') {
+			if (listOfDomains.includes(content.document.location.host)) {
 				testContent();
 			}
 			break;
@@ -41,6 +47,9 @@ let listener = {
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
+		case 'CSS:listOfDomainsChanged':
+			listOfDomains = message.data;
+			break;
 		case 'CSS:doItNow':
 			testContent();
 			break;
