@@ -33,7 +33,7 @@ h1.collapsed + ul {
 </style>
 </head>
 <body>
-<div><button onclick="doItNow();">click me</button></div>
+<div style="height: 30px"><div style="position: fixed;"><button onclick="doItNow();">click me</button></div></div>
 <script type="text/javascript">
 
 /* jshint browser: true */
@@ -41,35 +41,43 @@ h1.collapsed + ul {
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('chrome://css/content/things.jsm');
-let things = getThings();
-let hrefs = Array.from(things.keys()).sort();
-for (let href of hrefs) {
-	if (href === null) {
-		continue;
-	}
 
-	let data = things.get(href);
-	// if (!data.unused.length) {
-	// 	continue;
-	// }
+function loadAndFillLists() {
+	let things = getThings();
+	let hrefs = Array.from(things.keys()).sort();
+	for (let href of hrefs) {
+		if (href === null) {
+			continue;
+		}
 
-	let ul = findList(href);
-	for (let selector of data.unused) {
-		let li = document.createElement('li');
-		li.textContent = selector.selectorText;// + ' ' + selector.line;// + ':' + selector.column;
-		ul.appendChild(li);
+		let data = things.get(href);
+		// if (!data.unused.length) {
+		// 	continue;
+		// }
+
+		let ul = findList(href);
+		while (ul.lastChild) {
+			ul.lastChild.remove();
+		}
+		for (let selector of data.unused) {
+			let li = document.createElement('li');
+			li.textContent = selector.selectorText;// + ' ' + selector.line;// + ':' + selector.column;
+			ul.appendChild(li);
+		}
 	}
 }
 
+loadAndFillLists();
+
 function findList(href) {
 	for (let h of document.querySelectorAll('h1')) {
-		if (h.dataset.href == href) {
+		if (h.getAttribute('title') == href) {
 			return h.nextElementSibling;
 		}
 	}
 
 	let h1 = document.createElement('h1');
-	h1.dataset.href = href;
+	h1.setAttribute('title', href);
 	h1.textContent = href.substring(href.lastIndexOf('/') + 1);
 	h1.onclick = function() {
 		this.classList.toggle('collapsed');
@@ -97,7 +105,7 @@ let observer = {
 	]),
 
 	observe: function() {
-		location.reload();
+		loadAndFillLists();
 	}
 };
 
