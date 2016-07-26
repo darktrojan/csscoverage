@@ -13,6 +13,12 @@ h1 {
 	font-size: 16px;
 	white-space: nowrap;
 }
+h1.collapsed::before {
+	content: '[';
+}
+h1.collapsed::after {
+	content: ']';
+}
 ul {
 	list-style: none;
 	margin-top: 0;
@@ -21,12 +27,16 @@ ul {
 	font-size: 12px;
 	line-height: 16px;
 }
+h1.collapsed + ul {
+	display: none;
+}
 </style>
 </head>
 <body>
 <div><button onclick="doItNow();">click me</button></div>
 <script type="text/javascript">
 
+/* jshint browser: true */
 /* globals Components, Services, XPCOMUtils, getThings */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -61,6 +71,9 @@ function findList(href) {
 	let h1 = document.createElement('h1');
 	h1.dataset.href = href;
 	h1.textContent = href.substring(href.lastIndexOf('/') + 1);
+	h1.onclick = function() {
+		this.classList.toggle('collapsed');
+	};
 	let button = document.createElement('button');
 	button.textContent = 'X';
 	button.onclick = function() {
@@ -100,6 +113,7 @@ function getTopWindow() {
 	.wrappedJSObject;
 }
 
+/* exported doItNow */
 function doItNow() {
 	getTopWindow().gBrowser.selectedBrowser.messageManager.sendAsyncMessage('CSS:doItNow');
 }
