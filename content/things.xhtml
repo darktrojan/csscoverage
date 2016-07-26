@@ -24,6 +24,7 @@ ul {
 </style>
 </head>
 <body>
+<div><button onclick="doItNow();">click me</button></div>
 <script type="text/javascript">
 
 /* globals Components, Services, XPCOMUtils, getThings */
@@ -88,6 +89,20 @@ let observer = {
 };
 
 Services.obs.addObserver(observer, 'thingsAdded', true);
+
+function getTopWindow() {
+	return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	.getInterface(Components.interfaces.nsIWebNavigation)
+	.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+	.rootTreeItem
+	.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	.getInterface(Components.interfaces.nsIDOMWindow)
+	.wrappedJSObject;
+}
+
+function doItNow() {
+	getTopWindow().gBrowser.selectedBrowser.messageManager.sendAsyncMessage('CSS:doItNow');
+}
 
 </script>
 </body>
