@@ -19,7 +19,7 @@ h1.collapsed::before {
 h1.collapsed::after {
 	content: ']';
 }
-ul {
+p, ul {
 	list-style: none;
 	margin-top: 0;
 	padding: 0;
@@ -55,13 +55,14 @@ function loadAndFillLists() {
 		// 	continue;
 		// }
 
-		let ul = findList(href);
+		let { p, ul } = findList(href);
+		p.textContent = 'Used in ' + (data.locations.size == 1 ? '1 location, ' : data.locations.size + ' locations, ') + data.used.length + ' seen, ' + data.unused.length + ' unseen';
 		while (ul.lastChild) {
 			ul.lastChild.remove();
 		}
 		for (let selector of data.unused) {
 			let li = document.createElement('li');
-			li.textContent = selector.selectorText;// + ' ' + selector.line;// + ':' + selector.column;
+			li.textContent =  selector.line + ':' /*+ selector.column*/ + ' ' + selector.selectorText;
 			ul.appendChild(li);
 		}
 	}
@@ -72,7 +73,11 @@ loadAndFillLists();
 function findList(href) {
 	for (let h of document.querySelectorAll('h1')) {
 		if (h.getAttribute('title') == href) {
-			return h.nextElementSibling;
+			return {
+				h1: h,
+				p: h.nextElementSibling,
+				ul: h.nextElementSibling.nextElementSibling
+			};
 		}
 	}
 
@@ -87,14 +92,18 @@ function findList(href) {
 	button.onclick = function() {
 		getThings().delete(href);
 		h1.remove();
+		p.remove();
 		ul.remove();
 	};
 	h1.appendChild(button);
 	document.body.appendChild(h1);
 
+	let p = document.createElement('p');
+	document.body.appendChild(p);
+
 	let ul = document.createElement('ul');
 	document.body.appendChild(ul);
-	return ul;
+	return { h1, p, ul };
 }
 
 let observer = {

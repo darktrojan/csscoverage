@@ -65,11 +65,15 @@ function testContent() {
 	let result = new Map();
 	for (let ss of content.document.styleSheets) {
 		if (content.matchMedia(ss.media.mediaText).matches) {
+			let used = new Set();
 			let unused = new Set();
 			for (let r of ss.cssRules) {
-				testRule(r, unused);
+				testRule(r, used, unused);
 			}
-			result.set(ss.href, Array.from(unused));
+			result.set(ss.href, {
+				used: Array.from(used),
+				unused: Array.from(unused)
+			});
 		}
 	}
 	sendAsyncMessage('CSS:result', {
@@ -78,19 +82,22 @@ function testContent() {
 	});
 }
 
-function testRule(r, unused) {
+function testRule(r, used, unused) {
 	if (r.selectorText) {
 		try {
 			let count = DOMUtils.getSelectorCount(r);
 			for (var i = 0; i < count; i++) {
 				let s = DOMUtils.getSelectorText(r, i);
 				let t = s.replace(/:(active|checked|hover|visited|:after|:before)/g, '');
-				if (!content.document.querySelector(t)) {
-					unused.add({
-						line: DOMUtils.getRuleLine(r),
-						column: DOMUtils.getRuleColumn(r),
-						selectorText: s.trim()
-					});
+				let selector = {
+					line: DOMUtils.getRuleLine(r),
+					column: DOMUtils.getRuleColumn(r),
+					selectorText: s.trim()
+				};
+				if (content.document.querySelector(t)) {
+					used.add(selector);
+				} else {
+					unused.add(selector);
 				}
 			}
 		} catch (ex) {
@@ -98,7 +105,7 @@ function testRule(r, unused) {
 		}
 	} else if (r instanceof content.CSSMediaRule && content.matchMedia(r.conditionText).matches) {
 		for (let rr of r.cssRules) {
-			testRule(rr, unused);
+			testRule(rr, used, unused);
 		}
 	}
 }
