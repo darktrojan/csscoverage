@@ -1,0 +1,5 @@
+html, head, body {/* This is used. */}
+
+body[unused] {/* This isn't used. */}
+
+p {/* This is only used in simple2.html. */}
