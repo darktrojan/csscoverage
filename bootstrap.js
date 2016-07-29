@@ -2,10 +2,10 @@
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-/* globals addThings, CustomizableUI, Preferences */
-XPCOMUtils.defineLazyModuleGetter(this, 'addThings', 'chrome://css/content/things.jsm');
+/* globals CustomizableUI, Preferences, ThingStore */
 XPCOMUtils.defineLazyModuleGetter(this, 'CustomizableUI', 'resource:///modules/CustomizableUI.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ThingStore', 'chrome://csscoverage/content/ThingStore.jsm');
 
 /* exported install, uninstall, startup, shutdown */
 function install() {
@@ -51,12 +51,12 @@ function shutdown(params, reason) {
 
 	CustomizableUI.destroyWidget('css-widget');
 
-	Components.utils.unload('chrome://css/content/things.jsm');
+	Components.utils.unload('chrome://csscoverage/content/ThingStore.jsm');
 }
 
 var messageListener = {
 	// Work around bug 1051238.
-	_frameScriptURL: 'chrome://css/content/frame.js?' + Math.random(),
+	_frameScriptURL: 'chrome://csscoverage/content/frame.js?' + Math.random(),
 	_frameMessages: [
 		'CSS:result'
 	],
@@ -76,7 +76,7 @@ var messageListener = {
 	receiveMessage: function(message) {
 		switch (message.name) {
 		case 'CSS:result':
-			addThings(message.data);
+			ThingStore.addThings(message.data);
 			break;
 		}
 	},
@@ -87,15 +87,15 @@ var messageListener = {
 
 var prefObserver = {
 	init: function() {
-		Services.prefs.addObserver('extensions.css.domains', this, false);
+		Services.prefs.addObserver('extensions.csscoverage.domains', this, false);
 	},
 	destroy: function() {
-		Services.prefs.removeObserver('extensions.css.domains', this);
+		Services.prefs.removeObserver('extensions.csscoverage.domains', this);
 	},
 	observe: function(subject, topic, data) {
 		switch (data) {
-		case 'extensions.css.domains':
-			let list = Preferences.get('extensions.css.domains', '').split(/\s+/).filter(d => d);
+		case 'extensions.csscoverage.domains':
+			let list = Preferences.get('extensions.csscoverage.domains', '').split(/\s+/).filter(d => d);
 			messageListener.broadcast('CSS:listOfDomainsChanged', list);
 			break;
 		}
@@ -103,7 +103,7 @@ var prefObserver = {
 };
 
 var windowObserver = {
-	ICON_CSS_PIDATA: 'href="chrome://css/content/icon.css" type="text/css"',
+	ICON_CSS_PIDATA: 'href="chrome://csscoverage/content/icon.css" type="text/css"',
 	init: function() {
 		this.enumerate(this.paint);
 		Services.ww.registerNotification(this);
@@ -141,7 +141,7 @@ var windowObserver = {
 			broadcaster.setAttribute('sidebartitle', 'Things');
 			broadcaster.setAttribute('type', 'checkbox');
 			broadcaster.setAttribute('group', 'sidebar');
-			broadcaster.setAttribute('sidebarurl', 'chrome://css/content/things.xhtml');
+			broadcaster.setAttribute('sidebarurl', 'chrome://csscoverage/content/sidebar.xhtml');
 			broadcaster.setAttribute('oncommand', 'SidebarUI.toggle(\'cssSidebar\');');
 			doc.getElementById('mainBroadcasterSet').appendChild(broadcaster);
 

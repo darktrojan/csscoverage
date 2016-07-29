@@ -27,7 +27,8 @@ p, ul {
 	font-size: 12px;
 	line-height: 16px;
 }
-h1.collapsed + ul {
+h1.collapsed + p,
+h1.collapsed + p + ul {
 	display: none;
 }
 </style>
@@ -37,13 +38,13 @@ h1.collapsed + ul {
 <script type="text/javascript">
 
 /* jshint browser: true */
-/* globals Components, Services, XPCOMUtils, getThings */
+/* globals Components, Services, ThingStore, XPCOMUtils */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://css/content/things.jsm');
+Components.utils.import('chrome://csscoverage/content/ThingStore.jsm');
 
 function loadAndFillLists() {
-	let things = getThings();
+	let things = ThingStore.getThings();
 	let hrefs = Array.from(things.keys()).sort();
 	for (let href of hrefs) {
 		if (href === null) {
@@ -90,7 +91,7 @@ function findList(href) {
 	let button = document.createElement('button');
 	button.textContent = 'X';
 	button.onclick = function() {
-		getThings().delete(href);
+		ThingStore.forget(href);
 		h1.remove();
 		p.remove();
 		ul.remove();

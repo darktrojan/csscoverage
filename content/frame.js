@@ -5,7 +5,7 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
 XPCOMUtils.defineLazyServiceGetter(this, 'DOMUtils', '@mozilla.org/inspector/dom-utils;1', 'inIDOMUtils');
 
-let listOfDomains = Preferences.get('extensions.css.domains', '').split(/\s+/).filter(d => d);
+let listOfDomains = Preferences.get('extensions.csscoverage.domains', '').split(/\s+/).filter(d => d);
 
 let listener = {
 	_events: [
