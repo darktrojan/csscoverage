@@ -13,11 +13,13 @@ h1 {
 	font-size: 16px;
 	white-space: nowrap;
 }
-h1.collapsed::before {
-	content: '[';
+.collapsible::before {
+	content: '\25bc';
+	display: inline-block;
+	width: 1em;
 }
-h1.collapsed::after {
-	content: ']';
+.collapsed::before {
+	content: '\25b6';
 }
 p, ul {
 	list-style: none;
@@ -28,8 +30,12 @@ p, ul {
 	line-height: 16px;
 }
 h1.collapsed + p,
-h1.collapsed + p + ul {
+h1.collapsed + p + ul,
+li.collapsed > ul {
 	display: none;
+}
+li > ul {
+	padding-left: 2em;
 }
 </style>
 </head>
@@ -61,9 +67,29 @@ function loadAndFillLists() {
 		while (ul.lastChild) {
 			ul.lastChild.remove();
 		}
+		let previousMedia = null;
 		for (let selector of data.unused) {
 			let li = document.createElement('li');
-			li.textContent =  selector.line + ':' /*+ selector.column*/ + ' ' + selector.selectorText;
+			if (previousMedia != selector.media) {
+				if (previousMedia) {
+					ul = ul.parentNode.parentNode;
+				}
+				if (selector.media) {
+					li.textContent = '@media ' + selector.media;
+					li.classList.add('collapsible');
+					li.onclick = function(event) {
+						if (event.target == this) {
+							this.classList.toggle('collapsed');
+						}
+					}
+					ul.appendChild(li);
+					ul = document.createElement('ul');
+					li.appendChild(ul);
+					li = document.createElement('li');
+				}
+				previousMedia = selector.media;
+			}
+			li.textContent = selector.line + ':' /*+ selector.column*/ + ' ' + selector.selectorText;
 			ul.appendChild(li);
 		}
 	}
@@ -83,6 +109,7 @@ function findList(href) {
 	}
 
 	let h1 = document.createElement('h1');
+	h1.classList.add('collapsible');
 	h1.setAttribute('title', href);
 	h1.textContent = href.substring(href.lastIndexOf('/') + 1);
 	h1.onclick = function() {

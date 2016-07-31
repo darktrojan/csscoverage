@@ -32,8 +32,7 @@ var ThingStore = {
 };
 
 function equal(a, b) {
-	// Are line and column number even relevant for comparison?
-	return a.line == b.line && a.column == b.column && a.selectorText == b.selectorText;
+	return a.selectorText == b.selectorText && a.media == b.media;
 }
 
 function union(array1, array2) {

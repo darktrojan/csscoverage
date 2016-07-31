@@ -3,3 +3,12 @@ html, head, body {/* This is used. */}
 body[unused] {/* This isn't used. */}
 
 p {/* This is only used in simple2.html. */}
+
+@media all and (min-width: 500px) {
+	p {}
+	p[unused] {}
+}
+@media all and (max-width: 499px) {
+	p {}
+	p[unused] {}
+}

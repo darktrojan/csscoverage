@@ -82,7 +82,7 @@ function testContent() {
 	});
 }
 
-function testRule(r, used, unused) {
+function testRule(r, used, unused, media = null) {
 	if (r.selectorText) {
 		try {
 			let count = DOMUtils.getSelectorCount(r);
@@ -92,9 +92,10 @@ function testRule(r, used, unused) {
 				let selector = {
 					line: DOMUtils.getRuleLine(r),
 					column: DOMUtils.getRuleColumn(r),
-					selectorText: s.trim()
+					selectorText: s.trim(),
+					media: media ? media.condition : null
 				};
-				if (content.document.querySelector(t)) {
+				if (content.document.querySelector(t) && (!media || media.matches)) {
 					used.add(selector);
 				} else {
 					unused.add(selector);
@@ -103,9 +104,13 @@ function testRule(r, used, unused) {
 		} catch (ex) {
 			Components.utils.reportError(ex);
 		}
-	} else if (r instanceof content.CSSMediaRule && content.matchMedia(r.conditionText).matches) {
+	} else if (r instanceof content.CSSMediaRule) {
+		let ruleMedia = {
+			condition: r.conditionText,
+			matches: content.matchMedia(r.conditionText).matches
+		};
 		for (let rr of r.cssRules) {
-			testRule(rr, used, unused);
+			testRule(rr, used, unused, ruleMedia);
 		}
 	}
 }
