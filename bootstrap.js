@@ -61,7 +61,7 @@ var messageListener = {
 	// Work around bug 1051238.
 	_frameScriptURL: 'chrome://csscoverage/content/frame.js?' + Math.random(),
 	_frameMessages: [
-		'CSS:result'
+		'CSSCoverage:result'
 	],
 	init: function() {
 		for (let m of this._frameMessages) {
@@ -71,14 +71,14 @@ var messageListener = {
 	},
 	destroy: function() {
 		Services.mm.removeDelayedFrameScript(this._frameScriptURL, true);
-		Services.mm.broadcastAsyncMessage('CSS:disable');
+		Services.mm.broadcastAsyncMessage('CSSCoverage:disable');
 		for (let m of this._frameMessages) {
 			Services.mm.removeMessageListener(m, this);
 		}
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
-		case 'CSS:result':
+		case 'CSSCoverage:result':
 			RuleStore.addRules(message.data);
 			break;
 		}
@@ -99,7 +99,7 @@ var prefObserver = {
 		switch (data) {
 		case 'extensions.csscoverage.domains':
 			let list = Preferences.get('extensions.csscoverage.domains', '').split(/\s+/).filter(d => d);
-			messageListener.broadcast('CSS:listOfDomainsChanged', list);
+			messageListener.broadcast('CSSCoverage:listOfDomainsChanged', list);
 			break;
 		}
 	}

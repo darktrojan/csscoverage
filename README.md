@@ -18,7 +18,7 @@ To set up automatic scanning of pages when they load, the pref `extensions.cssco
 
 If you'd like your page itself to trigger scanning at any point, e.g. as part of unit tests, have it run this code:
 ```
-dispatchEvent(new CustomEvent('doItNow', {bubbles: true}));
+dispatchEvent(new CustomEvent('CSSCoverage:scanPage', {bubbles: true}));
 ```
 
 **Pref names, labels for things, icons etc. are all likely to change. At this stage I'm concentrating on making things work before making them pretty.**

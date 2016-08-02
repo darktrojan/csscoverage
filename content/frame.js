@@ -10,12 +10,12 @@ let listOfDomains = Preferences.get('extensions.csscoverage.domains', '').split(
 let listener = {
 	_events: [
 		'DOMContentLoaded',
-		'doItNow'
+		'CSSCoverage:scanPage'
 	],
 	_messages: [
-		'CSS:doItNow',
-		'CSS:disable',
-		'CSS:listOfDomainsChanged'
+		'CSSCoverage:scanPage',
+		'CSSCoverage:disable',
+		'CSSCoverage:listOfDomainsChanged'
 	],
 	init: function() {
 		for (let e of this._events) {
@@ -40,20 +40,20 @@ let listener = {
 				testContent();
 			}
 			break;
-		case 'doItNow':
+		case 'CSSCoverage:scanPage':
 			testContent();
 			break;
 		}
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
-		case 'CSS:listOfDomainsChanged':
+		case 'CSSCoverage:listOfDomainsChanged':
 			listOfDomains = message.data;
 			break;
-		case 'CSS:doItNow':
+		case 'CSSCoverage:scanPage':
 			testContent();
 			break;
-		case 'CSS:disable':
+		case 'CSSCoverage:disable':
 			this.destroy();
 			break;
 		}
@@ -76,7 +76,7 @@ function testContent() {
 			});
 		}
 	}
-	sendAsyncMessage('CSS:result', {
+	sendAsyncMessage('CSSCoverage:result', {
 		location: content.document.location.href,
 		result
 	});
