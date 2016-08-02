@@ -2,10 +2,13 @@
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-/* globals CustomizableUI, Preferences, ThingStore */
+/* globals strings, CustomizableUI, Preferences, RuleStore */
+XPCOMUtils.defineLazyGetter(this, 'strings', function() {
+	return Services.strings.createBundle('chrome://csscoverage/locale/csscoverage.properties');
+});
 XPCOMUtils.defineLazyModuleGetter(this, 'CustomizableUI', 'resource:///modules/CustomizableUI.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'ThingStore', 'chrome://csscoverage/content/ThingStore.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'RuleStore', 'chrome://csscoverage/content/RuleStore.jsm');
 
 /* exported install, uninstall, startup, shutdown */
 function install() {
@@ -31,8 +34,8 @@ function realStartup() {
 
 	CustomizableUI.createWidget({
 		id: 'css-widget',
-		label: 'things',
-		tooltiptext: 'things',
+		label: strings.GetStringFromName('toolbarbutton.label'),
+		tooltiptext: strings.GetStringFromName('toolbarbutton.label'),
 		type: 'button',
 		removable: true,
 		defaultArea: CustomizableUI.AREA_NAVBAR,
@@ -51,7 +54,7 @@ function shutdown(params, reason) {
 
 	CustomizableUI.destroyWidget('css-widget');
 
-	Components.utils.unload('chrome://csscoverage/content/ThingStore.jsm');
+	Components.utils.unload('chrome://csscoverage/content/RuleStore.jsm');
 }
 
 var messageListener = {
@@ -76,7 +79,7 @@ var messageListener = {
 	receiveMessage: function(message) {
 		switch (message.name) {
 		case 'CSS:result':
-			ThingStore.addThings(message.data);
+			RuleStore.addRules(message.data);
 			break;
 		}
 	},
@@ -131,18 +134,20 @@ var windowObserver = {
 
 			let menuitem = doc.createElementNS(XUL_NS, 'menuitem');
 			menuitem.id = 'menu_cssSidebar';
-			menuitem.setAttribute('label', 'Things');
+			menuitem.setAttribute('label', strings.GetStringFromName('sidebar.title'));
 			menuitem.setAttribute('observes', 'cssSidebar');
 			doc.getElementById('viewSidebarMenu').appendChild(menuitem);
 
 			let broadcaster = doc.createElementNS(XUL_NS, 'broadcaster');
 			broadcaster.id = 'cssSidebar';
 			broadcaster.setAttribute('autocheck', 'false');
-			broadcaster.setAttribute('sidebartitle', 'Things');
+			broadcaster.setAttribute('sidebartitle', strings.GetStringFromName('sidebar.title'));
 			broadcaster.setAttribute('type', 'checkbox');
 			broadcaster.setAttribute('group', 'sidebar');
 			broadcaster.setAttribute('sidebarurl', 'chrome://csscoverage/content/sidebar.xhtml');
-			broadcaster.setAttribute('oncommand', 'SidebarUI.toggle(\'cssSidebar\');');
+			broadcaster.oncommand = function() {
+				win.SidebarUI.toggle('cssSidebar');
+			};
 			doc.getElementById('mainBroadcasterSet').appendChild(broadcaster);
 
 			let pi = doc.createProcessingInstruction('xml-stylesheet', windowObserver.ICON_CSS_PIDATA);

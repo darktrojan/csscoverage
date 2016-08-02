@@ -1,33 +1,33 @@
 /* globals Components, Services */
 Components.utils.import('resource://gre/modules/Services.jsm');
 
-/* exported EXPORTED_SYMBOLS, ThingStore */
-var EXPORTED_SYMBOLS = ['ThingStore'];
-var mapOfAllTheThingsOMG = new Map();
+/* exported EXPORTED_SYMBOLS, RuleStore */
+var EXPORTED_SYMBOLS = ['RuleStore'];
+var rules = new Map();
 
-var ThingStore = {
-	addThings: function({location, result}) {
+var RuleStore = {
+	addRules: function({location, result}) {
 		for (let [href, {used, unused}] of result.entries()) {
-			if (mapOfAllTheThingsOMG.has(href)) {
-				let existing = mapOfAllTheThingsOMG.get(href);
+			if (rules.has(href)) {
+				let existing = rules.get(href);
 				existing.locations.add(location);
 				existing.used = union(existing.used, used);
 				existing.unused = subtract(unused, existing.used);
-				mapOfAllTheThingsOMG.set(href, existing);
+				rules.set(href, existing);
 			} else {
-				mapOfAllTheThingsOMG.set(href, {
+				rules.set(href, {
 					locations: new Set([location]), used, unused
 				});
 			}
 		}
-		Services.obs.notifyObservers(null, 'thingsAdded', null);
+		Services.obs.notifyObservers(null, 'CSSCoverage:rulesAdded', null);
 	},
-	getThings: function() {
+	getAllRules: function() {
 		// Clone the Map so that this one is not editable.
-		return new Map(mapOfAllTheThingsOMG);
+		return new Map(rules);
 	},
 	forget: function(url) {
-		mapOfAllTheThingsOMG.delete(url);
+		rules.delete(url);
 	}
 };
 

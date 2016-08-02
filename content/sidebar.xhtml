@@ -44,20 +44,20 @@ li > ul {
 <script type="text/javascript">
 
 /* jshint browser: true */
-/* globals Components, Services, ThingStore, XPCOMUtils */
+/* globals Components, Services, RuleStore, XPCOMUtils */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('chrome://csscoverage/content/ThingStore.jsm');
+Components.utils.import('chrome://csscoverage/content/RuleStore.jsm');
 
 function loadAndFillLists() {
-	let things = ThingStore.getThings();
-	let hrefs = Array.from(things.keys()).sort();
+	let rules = RuleStore.getAllRules();
+	let hrefs = Array.from(rules.keys()).sort();
 	for (let href of hrefs) {
 		if (href === null) {
 			continue;
 		}
 
-		let data = things.get(href);
+		let data = rules.get(href);
 		// if (!data.unused.length) {
 		// 	continue;
 		// }
@@ -81,7 +81,7 @@ function loadAndFillLists() {
 						if (event.target == this) {
 							this.classList.toggle('collapsed');
 						}
-					}
+					};
 					ul.appendChild(li);
 					ul = document.createElement('ul');
 					li.appendChild(ul);
@@ -118,7 +118,7 @@ function findList(href) {
 	let button = document.createElement('button');
 	button.textContent = 'X';
 	button.onclick = function() {
-		ThingStore.forget(href);
+		RuleStore.forget(href);
 		h1.remove();
 		p.remove();
 		ul.remove();
@@ -146,7 +146,7 @@ let observer = {
 	}
 };
 
-Services.obs.addObserver(observer, 'thingsAdded', true);
+Services.obs.addObserver(observer, 'CSSCoverage:rulesAdded', true);
 
 function getTopWindow() {
 	return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
