@@ -6,13 +6,13 @@ This is a CSS code coverage tool. As you load pages from your website in Firefox
 
 ## Install
 
-It's currently too early in the development process to package and release this extension.
+Packaged versions of this add-on can be found at https://addons.mozilla.org/en-US/firefox/addon/css-coverage/ .
 
 To get a working version of this repo in your Firefox profile, clone it into your extensions directory as `csscoverage@darktrojan.net` and start Firefox. You'll need to use Nightly or Developer Edition, as the source code is not signed.
 
 ## Usage
 
-After install you'll see a button on your toolbar (currently this button has a white diamond and four coloured triangles for an icon). Clicking it will open the sidebar, where results will be displayed. To scan the current page at any point click the button labelled "click me".
+After install you'll see a button on your toolbar (currently this button has a white diamond and four coloured triangles for an icon). Clicking it will open the sidebar, where results will be displayed. To scan the current page at any point click the button labelled "Scan Current Page".
 
 To set up automatic scanning of pages when they load, the pref `extensions.csscoverage.domains` is a space-separated list of hostnames. Include the port number if necessary (e.g. `localhost:8080`).
 
