@@ -13,11 +13,12 @@ let listener = {
 		'CSSCoverage:scanPage'
 	],
 	_messages: [
+		'CSSCoverage:enable',
+		'CSSCoverage:listOfDomainsChanged',
 		'CSSCoverage:scanPage',
-		'CSSCoverage:disable',
-		'CSSCoverage:listOfDomainsChanged'
+		'CSSCoverage:disable'
 	],
-	init: function() {
+	enable: function() {
 		for (let e of this._events) {
 			addEventListener(e, this, false, true);
 		}
@@ -25,7 +26,7 @@ let listener = {
 			addMessageListener(m, this);
 		}
 	},
-	destroy: function() {
+	disable: function() {
 		for (let e of this._events) {
 			removeEventListener(e, this, false, true);
 		}
@@ -47,6 +48,9 @@ let listener = {
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
+		case 'CSSCoverage:enable':
+			this.enable();
+			break;
 		case 'CSSCoverage:listOfDomainsChanged':
 			listOfDomains = message.data;
 			break;
@@ -54,12 +58,12 @@ let listener = {
 			testContent();
 			break;
 		case 'CSSCoverage:disable':
-			this.destroy();
+			this.disable();
 			break;
 		}
 	}
 };
-listener.init();
+listener.enable();
 
 function testContent() {
 	let result = new Map();

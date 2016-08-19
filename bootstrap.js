@@ -28,6 +28,8 @@ function startup(params, reason) {
 	}
 }
 function realStartup() {
+	Services.prefs.getDefaultBranch('extensions.csscoverage.').setCharPref('domains', '');
+
 	messageListener.init();
 	prefObserver.init();
 	windowObserver.init();
@@ -68,10 +70,11 @@ var messageListener = {
 			Services.mm.addMessageListener(m, this);
 		}
 		Services.mm.loadFrameScript(this._frameScriptURL, true);
+		this.broadcast('CSSCoverage:enable');
 	},
 	destroy: function() {
 		Services.mm.removeDelayedFrameScript(this._frameScriptURL, true);
-		Services.mm.broadcastAsyncMessage('CSSCoverage:disable');
+		this.broadcast('CSSCoverage:disable');
 		for (let m of this._frameMessages) {
 			Services.mm.removeMessageListener(m, this);
 		}
