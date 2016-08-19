@@ -6,9 +6,10 @@
 		<em:version>1</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
-		<em:name>CSS</em:name>
+		<em:name>CSS Coverage</em:name>
 		<em:description>Tests your stylesheets across multiple pages to see which rules are used and which can be safely removed.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
+		<em:multiprocessCompatible>true</em:multiprocessCompatible>
 
 		<em:targetApplication>
 			<Description>
