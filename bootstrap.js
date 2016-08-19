@@ -139,6 +139,9 @@ var windowObserver = {
 			menuitem.id = 'menu_cssSidebar';
 			menuitem.setAttribute('label', strings.GetStringFromName('sidebar.title'));
 			menuitem.setAttribute('observes', 'cssSidebar');
+			menuitem.addEventListener('command', function(event) {
+				event.view.SidebarUI.toggle('cssSidebar');
+			});
 			doc.getElementById('viewSidebarMenu').appendChild(menuitem);
 
 			let broadcaster = doc.createElementNS(XUL_NS, 'broadcaster');
@@ -148,9 +151,9 @@ var windowObserver = {
 			broadcaster.setAttribute('type', 'checkbox');
 			broadcaster.setAttribute('group', 'sidebar');
 			broadcaster.setAttribute('sidebarurl', 'chrome://csscoverage/content/sidebar.xhtml');
-			broadcaster.oncommand = function() {
-				win.SidebarUI.toggle('cssSidebar');
-			};
+			broadcaster.addEventListener('command', function(event) {
+				event.view.SidebarUI.toggle('cssSidebar');
+			});
 			doc.getElementById('mainBroadcasterSet').appendChild(broadcaster);
 
 			let pi = doc.createProcessingInstruction('xml-stylesheet', windowObserver.ICON_CSS_PIDATA);

@@ -7,14 +7,14 @@
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>CSS</em:name>
-		<em:description></em:description>
+		<em:description>Tests your stylesheets across multiple pages to see which rules are used and which can be safely removed.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
 
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
 				<em:minVersion>45.0</em:minVersion>
-				<em:maxVersion>50.0a1</em:maxVersion>
+				<em:maxVersion>51.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 	</Description>

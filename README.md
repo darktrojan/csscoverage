@@ -12,7 +12,7 @@ To get a working version of this repo in your Firefox profile, clone it into you
 
 ## Usage
 
-After install you'll see a button on your toolbar (currently this button has a red square for an icon). Clicking it will open the sidebar, where results will be displayed. To scan the current page at any point click the button labelled "click me".
+After install you'll see a button on your toolbar (currently this button has a white diamond and four coloured triangles for an icon). Clicking it will open the sidebar, where results will be displayed. To scan the current page at any point click the button labelled "click me".
 
 To set up automatic scanning of pages when they load, the pref `extensions.csscoverage.domains` is a space-separated list of hostnames. Include the port number if necessary (e.g. `localhost:8080`).
 
