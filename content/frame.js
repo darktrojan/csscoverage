@@ -67,14 +67,16 @@ listener.enable();
 
 function testContent() {
 	let result = new Map();
+	let index = 0;
 	for (let ss of content.document.styleSheets) {
 		if (content.matchMedia(ss.media.mediaText).matches) {
+			let name = ss.href ? ss.href : content.document.location.href + '#' + ++index;
 			let used = new Set();
 			let unused = new Set();
 			for (let r of ss.cssRules) {
 				testRule(r, used, unused);
 			}
-			result.set(ss.href, {
+			result.set(name, {
 				used: Array.from(used),
 				unused: Array.from(unused)
 			});
